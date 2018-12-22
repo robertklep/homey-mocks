@@ -13,17 +13,16 @@ Include the script at the top of your template:
 <script src='https://cdn.staticaly.com/gh/robertklep/homey-mocks/v0.0.1/homey-pairing-mock.js'></script>
 
 <!-- for settings templates -->
+<script src='/homey.js'></script>
 <script src='https://cdn.staticaly.com/gh/robertklep/homey-mocks/v0.0.1/homey-settings-mock.js'></script>
 ```
 
 (or download the files and add them to your app, they're not big)
 
-Then, register some custom event handlers/listeners:
+Then, use `Homey.isMock` to run code when the mock object is active:
+
 ```javascript
 if (Homey.isMock) {
-  Homey.registerOnHandler('someEvent', (ev, fn) => {
-    ...
-  });
 }
 ```
 
@@ -103,4 +102,84 @@ However, some react differently then when run on Homey itself:
 
 ## Settings API
 
-WIP.
+All original `Homey` methods are supported.
+
+However, some react differently then when run on Homey itself:
+* `Homey.ready()`: no-op;
+* `Homey.api()`: no actual requests are made, see `Homey.addRoutes()` below;
+* `Homey.__()`: no-op;
+
+### Mock API methods
+
+* `Homey.isMock`
+
+  Equals `true` when the `Homey` object is mocked.
+
+* `Homey.setSettings(settings)`
+
+  Assign application settings (to be retrieved using `Homey.get()`).
+
+* `Homey.addRoutes(routes)`
+
+  Set API routes to match the routes in your `api.js` files. The structure of the `routes` array is basically the same as for `api.js`, where `fn` should implement the (fake) API response.
+
+  For example, this is how you could mock a CRUD store:
+
+  ```javascript
+  let store = {};
+  Homey.addRoutes([
+    {
+      method: 'GET',
+      path:   '/',
+      fn:     function(args, callback) {
+        return callback(null, Object.assign({}, store));
+      }
+    },
+    {
+      method: 'GET',
+      path:   '/:id',
+      fn:     function(args, callback) {
+        const item = store[args.params.id];
+        if (! item) {
+          return callback(Error('NOT_FOUND'));
+        }
+        return callback(null, item);
+      }
+    },
+    {
+      method: 'POST',
+      path:   '/',
+      fn:     function(args, callback) {
+        const id   = ('00000000' + 100000000 * Math.random()).slice(-8);
+        const item = store[id] = args.body;
+        item.id    = id;
+        return callback(null, item);
+      }
+    },
+    {
+      method: 'PUT',
+      path:   '/:id',
+      fn:     function(args, callback) {
+        const item = store[args.params.id];
+        if (! item) {
+          return callback(Error('NOT_FOUND'));
+        }
+        Object.assign(item, args.body);
+        item.id = args.params.id;
+        return callback(null, item);
+      }
+    },
+    {
+      method: 'DELETE',
+      path:   '/:id',
+      fn:     function(args, callback) {
+        const item = store[args.params.id];
+        if (! item) {
+          return callback(Error('NOT_FOUND'));
+        }
+        delete store[args.params.id];
+        return callback();
+      }
+    },
+  ]);
+  ```
