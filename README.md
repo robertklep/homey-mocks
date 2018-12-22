@@ -10,11 +10,11 @@ Include the script at the top of your template:
 
 ```html
 <!-- for pairing templates -->
-<script src='https://cdn.staticaly.com/gh/robertklep/homey-mocks/v0.0.1/homey-pairing-mock.js'></script>
+<script src='https://cdn.staticaly.com/gh/robertklep/homey-mocks/v0.0.2/homey-pairing-mock.js'></script>
 
 <!-- for settings templates -->
 <script src='/homey.js'></script>
-<script src='https://cdn.staticaly.com/gh/robertklep/homey-mocks/v0.0.1/homey-settings-mock.js'></script>
+<script src='https://cdn.staticaly.com/gh/robertklep/homey-mocks/v0.0.2/homey-settings-mock.js'></script>
 ```
 
 (or download the files and add them to your app, they're not big)
