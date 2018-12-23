@@ -5,7 +5,9 @@ if (! window.Homey) {
       this.settings  = {};
       this.listeners = {};
       this.routes    = [];
-      window.onHomeyReady && window.onHomeyReady(this);
+      window.addEventListener('load', function() {
+        window.onHomeyReady && window.onHomeyReady(this);
+      }.bind(this));
     }
 
     // Mock API
@@ -77,7 +79,7 @@ if (! window.Homey) {
           args.query[key] = url.searchParams.get(key);
         }
       }
- 
+
       // Parse params.
       args.params = url.pathname.match(route.pathRegex).groups;
 
@@ -110,4 +112,3 @@ if (! window.Homey) {
     }
   })();
 }
-
