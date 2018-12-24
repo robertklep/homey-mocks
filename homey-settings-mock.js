@@ -1,10 +1,11 @@
 if (! window.Homey) {
   window.Homey = new (class Homey {
     constructor() {
-      this.isMock    = true;
-      this.settings  = {};
-      this.listeners = {};
-      this.routes    = [];
+      this.isMock     = true;
+      this.settings   = {};
+      this.listeners  = {};
+      this.onHandlers = {};
+      this.routes     = [];
       window.addEventListener('load', function() {
         window.onHomeyReady && window.onHomeyReady(this);
       }.bind(this));
@@ -20,6 +21,10 @@ if (! window.Homey) {
       for (const route of this.routes) {
         route.pathRegex = new RegExp('^' + route.path.replace(/(:)(\w+)/gi, '(?<$2>\\w+)') + '$');
       }
+    }
+
+    registerOnHandler(event, fn) {
+      this.onHandlers[event] = fn;
     }
 
     _emit(event, ...args) {
@@ -48,6 +53,9 @@ if (! window.Homey) {
     }
 
     on(event, cb) {
+      if (this.onHandlers[event]) {
+        return this.onHandlers[event](event, cb);
+      }
       if (! this.listeners[event]) {
         this.listeners[event] = [];
       }
