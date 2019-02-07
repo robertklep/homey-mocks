@@ -36,9 +36,9 @@ if (! window.Homey) {
     }
 
     // Regular API.
-    emit(event, data, cb) {
+    emit(event, ...args) {
       let handler = this.emitHandlers[event];
-      handler && handler(event, data, cb);
+      handler && handler(event, ...args);
     }
 
     on(event, cb) {
