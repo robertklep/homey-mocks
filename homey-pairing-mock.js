@@ -65,7 +65,11 @@ if (! window.Homey) {
       return this.showView(this._nextView);
     }
 
-    addDevice(device, cb) {
+    addDevice(...args) {
+      return this.createDevice(...args);
+    }
+
+    createDevice(device, cb) {
       console.log('should add device', device);
       return cb();
     }
