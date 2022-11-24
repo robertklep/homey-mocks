@@ -1,13 +1,15 @@
 if (! window.Homey) {
   window.Homey = new (class Homey {
     constructor() {
-      this.isMock       = true;
-      this.zone         = null;
-      this._nextView    = null;
-      this._prevView    = null;
-      this.viewOptions  = {};
-      this.emitHandlers = {};
-      this.onHandlers   = {};
+      this.isMock         = true;
+      this.zone           = null;
+      this.currentView    = null;
+      this._nextView      = null;
+      this._prevView      = null;
+      this.viewOptions    = {};
+      this.emitHandlers   = {};
+      this.onHandlers     = {};
+      this.loadingOverlay = null;
     }
 
     // Mock API
@@ -36,10 +38,12 @@ if (! window.Homey) {
     }
 
     // Regular API.
-    emit(event, ...args) {
-      const [ data, callback ] = args.length >= 2 ? args : [ {}, args[0] ];
+    async emit(event, ...data) {
       let handler = this.emitHandlers[event];
-      handler && handler(event, data, callback);
+      if (handler) {
+        return handler(event, data);
+      }
+      return undefined;
     }
 
     on(event, cb) {
@@ -50,10 +54,14 @@ if (! window.Homey) {
     setTitle(title) {
     }
 
+    setSubtitle(title) {
+    }
+
     showView(view) {
       if (! view) {
         return this.alert('View not set', 'error');
       }
+      this.currentView = view;
       location = view + '.html';
     }
 
@@ -65,21 +73,21 @@ if (! window.Homey) {
       return this.showView(this._nextView);
     }
 
-    addDevice(...args) {
-      return this.createDevice(...args);
+    getCurrentView() {
+      return this.currentView;
     }
 
-    createDevice(device, cb) {
+    async createDevice(device) {
       console.log('should add device', device);
-      return cb();
+      return true; // not documented what result should be
     }
 
-    getZone(cb) {
-      return cb(null, this.zone);
+    async getZone() {
+      return this.zone;
     }
 
-    getOptions(viewId, cb) {
-      return cb(null, this.viewOptions[viewId]);
+    async getOptions(viewId) {
+      return this.viewOptions[viewId];
     }
 
     setNavigationClose() {
@@ -90,16 +98,14 @@ if (! window.Homey) {
       return this.alert('Done', 'info');
     }
 
-    alert(msg, icon, cb) {
+    async alert(msg, icon) {
       if (typeof icon === 'function') cb = icon, icon = null;
       alert(msg);
-      cb && cb();
     }
 
-    confirm(msg, icon, cb) {
+    async confirm(msg, icon) {
       if (typeof icon === 'function') cb = icon, icon = null;
-      let ret = confirm(msg);
-      cb && cb(null, ret);
+      return confirm(msg);
     }
 
     popup(url, { width = 400, height = 400 } = {}) {
@@ -108,6 +114,25 @@ if (! window.Homey) {
 
     __(key, tokens) {
       return key;
+    }
+
+    showLoadingOverlay() {
+      if (this.loadingOverlay) return;
+      this.loadingOverlay = document.createElement('div');
+      this.loadingOverlay.innerHTML = `
+<div style='position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;background:rgba(0,0,0,0.7)'>
+  <div style='position:absolute;top:50%;left:50%;border:1px solid black;transform:translate(-50%);color:white;font-size:200%;padding:0.5em 1em;border-radius:0.5em'>
+    LOADING
+  </div>
+</div>
+      `;
+      document.body.appendChild(this.loadingOverlay);
+    }
+
+    hideLoadingOverlay() {
+      if (! this.loadingOverlay) return;
+      document.body.removeChild(this.loadingOverlay);
+      this.loadingOverlay = null;
     }
   })();
 }
