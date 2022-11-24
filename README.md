@@ -56,14 +56,13 @@ However, some react differently then when run on Homey itself:
 
   ```javascript
   // Register a mock handler for the `start` event.
-  Homey.registerEmitHandler('start', (event, data, cb) => {
-    cb(null, 'Started!');
+  Homey.registerEmitHandler('start', async (event, data) => {
+    return 'Started!';
   });
 
   // The handler above is called when using the following code:
-  Homey.emit('start', { 'foo': 'bar' }, function( err, result ) {
-    console.log(result); // result is Started!
-  });
+  const result = await Homey.emit('start', { 'foo': 'bar' });
+  console.log(result); // result is "Started!"
   ```
 
 * `Homey.registerOnHandler(event, fn)`
