@@ -35,7 +35,6 @@ You don't necessarily need to remove the includes from production code, because 
 All original `Homey` methods are supported.
 
 However, some react differently then when run on Homey itself:
-* view stores aren't supported yet
 * `Homey.nextView/prevView()`: require that you called `setNextView/setPrevView` first;
 * `Homey.showView(view)`: will try to open the file `${ view }.html` in your browser;
 * `Homey.createDevice()`: will log the device data to console;
@@ -99,6 +98,10 @@ However, some react differently then when run on Homey itself:
 * `Homey.setOptions(viewId, opts)`
 
   Set view options (for use with `Homey.getOptions()`)
+
+* `Homey.setViewStore(viewId, store)`
+
+  Set view store content (for use with `Homey.getViewStoreValue()`)
 
 ## Settings API
 
