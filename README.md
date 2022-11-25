@@ -30,6 +30,15 @@ That's all.
 
 You don't necessarily need to remove the includes from production code, because the scripts will not do anything if they're running in a production environment.
 
+## Homey Style Library
+
+If you want to use the [Homey Style Library](https://apps.developer.homey.app/advanced/custom-views/html-and-css-styling) for your custom views, you can add the CSS and font files explicity:
+```
+Homey.loadStyleLibrary(URL);
+```
+
+Where `URL` is the URL of your Homey, for example `http://192-168-1-99.homey.homeylocal.com`.
+
 ## Pairing API
 
 All original `Homey` methods are supported.
